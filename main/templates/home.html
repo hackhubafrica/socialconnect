@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Home</title>
+</head>
+<body>
+    <h1>Welcome to SocialConnect!</h1>
+
+    {% if user.is_authenticated %}
+        <p>Hello, {{ user.username }}!</p>
+        <p><a href="{% url 'create_post' %}">Create Post</a></p>
+        <p><a href="{% url 'account_logout' %}">Logout</a></p>
+
+        <h2>Posts</h2>
+        <ul>
+            {% for post in posts %}
+                <li>
+                    <p>{{ post.content }} - {{ post.author.username }} - {{ post.created_at }}</p>
+                    <a href="{% url 'add_comment' post.id %}">Add Comment</a>
+                    
+                    <!-- Display Follow/Unfollow links -->
+                    {% if user != post.author %}
+                        {% if user in post.author.followers.all %}
+                            <a href="{% url 'follow_user' post.author.id %}">Unfollow {{ post.author.username }}</a>
+                        {% else %}
+                            <a href="{% url 'follow_user' post.author.id %}">Follow {{ post.author.username }}</a>
+                        {% endif %}
+                    {% endif %}
+                    
+                    <ul>
+                        {% for comment in post.comments.all %}
+                            <li>{{ comment.content }} - {{ comment.author.username }} - {{ comment.created_at }}</li>
+                        {% endfor %}
+                    </ul>
+                </li>
+            {% endfor %}
+        </ul>
+
+        <h2>Users</h2>
+        <ul>
+            {% for user in users %}
+                <li>
+                    {{ user.username }} 
+                    {% if user in request.user.following.all %}
+                        <a href="{% url 'follow_user' user.id %}">Unfollow</a>
+                    {% else %}
+                        <a href="{% url 'follow_user' user.id %}">Follow</a>
+                    {% endif %}
+                </li>
+            {% endfor %}
+        </ul>
+
+    {% else %}
+        <p>You are not logged in.</p>
+        <p><a href="{% url 'account_login' %}">Login</a> | <a href="{% url 'account_signup' %}">Signup</a></p>
+    {% endif %}
+</body>
+</html>
